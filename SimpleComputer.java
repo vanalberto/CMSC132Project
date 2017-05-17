@@ -31,6 +31,8 @@ public class SimpleComputer{
 	int clkCycle;
 	int last_addr;
 
+	int totalClkCycles;
+
 	//regular expressions
     String instregex = "(LOAD|ADD|SUB|CMP)";
     String registerregex = "(R1|R2|R3|R4|R5|R6|R7|R8|R9|R10|R11|R12|R13|R14|R15|R16|R17|R18|R19|R20|R21|R22|R23|R24|R25|R26|R27|R28|R29|R30|R31|R32)";
@@ -126,7 +128,7 @@ public class SimpleComputer{
 
 			// ---------------------------------------- END OF READING FILE ----------------------------------------
 
-			while(clkCycle<7){		//!!!!!!!!!!!!!!!!!!!! -------------------- while(ops.get(last_addr).state!=DONE)
+			while(ops.get(3).state!=DONE){		//!!!!!!!!!!!!!!!!!!!! -------------------- while(ops.get(last_addr).state!=DONE)
 
 				if(clkCycle==1){
 
@@ -147,85 +149,306 @@ public class SimpleComputer{
 
 						if(ops.get(temp1).state==DECODE){
 
-							System.out.println("Operation: " + ops.get(clkCycle-1).instruction + " " + ops.get(clkCycle-1).operand1 + "," 
-							+ ops.get(clkCycle-1).operand2 + "\nState: " + ops.get(clkCycle-1).state);
-							System.out.println("Operation: " + ops.get(clkCycle).instruction + " " + ops.get(clkCycle).operand1 + "," 
-							+ ops.get(clkCycle).operand2 + "\nState: " + ops.get(clkCycle).state);
+							if((temp1+1)>last_addr){
+								System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+								+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
 
-							System.out.println("Clock Cycle: " + clkCycle);
-							ops.get(clkCycle).state=DECODE;
-							ops.get(clkCycle-1).state=EXECUTE;
-							clkCycle++;
-							System.out.println();
+								System.out.println("Clock Cycle: " + clkCycle);
+								ops.get(temp1).state=EXECUTE;
+								clkCycle++;
+								System.out.println();
+
+							}
+							else{
+
+								System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+								+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+								System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+								+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+
+								System.out.println("Clock Cycle: " + clkCycle);
+								ops.get(temp1+1).state=DECODE;
+								ops.get(temp1).state=EXECUTE;
+								clkCycle++;
+								System.out.println();
+
+							}
+
 						}	
 
 						else if(ops.get(temp1).state==EXECUTE){
 
-							System.out.println("Operation: " + ops.get(clkCycle-2).instruction + " " + ops.get(clkCycle-2).operand1 + "," 
-							+ ops.get(clkCycle-2).operand2 + "\nState: " + ops.get(clkCycle-2).state);
-							System.out.println("Operation: " + ops.get(clkCycle-1).instruction + " " + ops.get(clkCycle-1).operand1 + "," 
-							+ ops.get(clkCycle-1).operand2 + "\nState: " + ops.get(clkCycle-1).state);
-							System.out.println("Operation: " + ops.get(clkCycle).instruction + " " + ops.get(clkCycle).operand1 + "," 
-							+ ops.get(clkCycle).operand2 + "\nState: " + ops.get(clkCycle).state);
+							if((temp1+2)>last_addr){
 
-							//~EXECUTE the instruction with the execute state~
-							if(ops.get(temp1).instruction.equals("LOAD")){
-								execLoad(ops.get(temp1).operand1,ops.get(temp1).operand2);
+								if((temp1+1)>last_addr){
+
+									System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+									+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+
+									//~EXECUTE the instruction with the execute state~
+									if(ops.get(temp1).instruction.equals("LOAD")){
+										execLoad(ops.get(temp1).operand1,ops.get(temp1).operand2);
+									}
+
+									System.out.println("Clock Cycle: " + clkCycle);
+									ops.get(temp1).state=MEM_ACCESS;
+									clkCycle++;
+									System.out.println();
+
+								}
+								else{
+
+									System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+									+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+									System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+									+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+
+									//~EXECUTE the instruction with the execute state~
+									if(ops.get(temp1).instruction.equals("LOAD")){
+										execLoad(ops.get(temp1).operand1,ops.get(temp1).operand2);
+									}
+
+									System.out.println("Clock Cycle: " + clkCycle);
+									ops.get(temp1+1).state=EXECUTE;
+									ops.get(temp1).state=MEM_ACCESS;
+									clkCycle++;
+									System.out.println();
+
+								}
+
+							}
+							else{
+
+								System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+								+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+								System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+								+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+								System.out.println("Operation: " + ops.get(temp1+2).instruction + " " + ops.get(temp1+2).operand1 + "," 
+								+ ops.get(temp1+2).operand2 + "\nState: " + ops.get(temp1+2).state);
+
+								//~EXECUTE the instruction with the execute state~
+								if(ops.get(temp1).instruction.equals("LOAD")){
+									execLoad(ops.get(temp1).operand1,ops.get(temp1).operand2);
+								}
+
+								System.out.println("Clock Cycle: " + clkCycle);
+								ops.get(temp1+2).state=DECODE;
+								ops.get(temp1+1).state=EXECUTE;
+								ops.get(temp1).state=MEM_ACCESS;
+								clkCycle++;
+								System.out.println();
+
 							}
 
-							System.out.println("Clock Cycle: " + clkCycle);
-							ops.get(clkCycle).state=DECODE;
-							ops.get(clkCycle-1).state=EXECUTE;
-							ops.get(clkCycle-2).state=MEM_ACCESS;
-							clkCycle++;
-							System.out.println();
 						}
 
 						else if(ops.get(temp1).state==MEM_ACCESS){
 
-							System.out.println("Operation: " + ops.get(clkCycle-3).instruction + " " + ops.get(clkCycle-3).operand1 + "," 
-							+ ops.get(clkCycle-3).operand2 + "\nState: " + ops.get(clkCycle-3).state);
-							System.out.println("Operation: " + ops.get(clkCycle-2).instruction + " " + ops.get(clkCycle-2).operand1 + "," 
-							+ ops.get(clkCycle-2).operand2 + "\nState: " + ops.get(clkCycle-2).state);
-							System.out.println("Operation: " + ops.get(clkCycle-1).instruction + " " + ops.get(clkCycle-1).operand1 + "," 
-							+ ops.get(clkCycle-1).operand2 + "\nState: " + ops.get(clkCycle-1).state);
-							System.out.println("Operation: " + ops.get(clkCycle).instruction + " " + ops.get(clkCycle).operand1 + "," 
-							+ ops.get(clkCycle).operand2 + "\nState: " + ops.get(clkCycle).state);
+							if((temp1+3)>last_addr){
 
-							//~EXECUTE the instruction with the execute state~
+								if((temp1+2)>last_addr){
 
-							System.out.println("Clock Cycle: " + clkCycle);
-							ops.get(clkCycle).state=DECODE;
-							ops.get(clkCycle-1).state=EXECUTE;
-							ops.get(clkCycle-2).state=MEM_ACCESS;
-							ops.get(clkCycle-3).state=WRITE_BACK;
-							clkCycle++;
-							System.out.println();
+									if((temp1+1)>last_addr){
+
+										System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+										+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+
+										//~EXECUTE the instruction with the execute state~
+
+										System.out.println("Clock Cycle: " + clkCycle);
+										ops.get(temp1).state=WRITE_BACK;
+										clkCycle++;
+										System.out.println();
+
+									}
+									else{
+
+										System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+										+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+										System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+										+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+
+										//~EXECUTE the instruction with the execute state~
+
+										System.out.println("Clock Cycle: " + clkCycle);
+										ops.get(temp1+1).state=MEM_ACCESS;
+										ops.get(temp1).state=WRITE_BACK;
+										clkCycle++;
+										System.out.println();
+
+									}
+
+								}
+								else{
+
+									System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+									+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+									System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+									+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+									System.out.println("Operation: " + ops.get(temp1+2).instruction + " " + ops.get(temp1+2).operand1 + "," 
+									+ ops.get(temp1+2).operand2 + "\nState: " + ops.get(temp1+2).state);
+
+									//~EXECUTE the instruction with the execute state~
+
+									System.out.println("Clock Cycle: " + clkCycle);
+									ops.get(temp1+2).state=EXECUTE;
+									ops.get(temp1+1).state=MEM_ACCESS;
+									ops.get(temp1).state=WRITE_BACK;
+									clkCycle++;
+									System.out.println();
+
+								}
+
+							}
+							else{
+
+								System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+								+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+								System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+								+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+								System.out.println("Operation: " + ops.get(temp1+2).instruction + " " + ops.get(temp1+2).operand1 + "," 
+								+ ops.get(temp1+2).operand2 + "\nState: " + ops.get(temp1+2).state);
+								System.out.println("Operation: " + ops.get(temp1+3).instruction + " " + ops.get(temp1+3).operand1 + "," 
+								+ ops.get(temp1+3).operand2 + "\nState: " + ops.get(temp1+3).state);
+
+								//~EXECUTE the instruction with the execute state~
+
+								System.out.println("Clock Cycle: " + clkCycle);
+								ops.get(temp1+3).state=DECODE;
+								ops.get(temp1+2).state=EXECUTE;
+								ops.get(temp1+1).state=MEM_ACCESS;
+								ops.get(temp1).state=WRITE_BACK;
+								clkCycle++;
+								System.out.println();
+
+							}
+
 						}
 
 						else if(ops.get(temp1).state==WRITE_BACK){
-							System.out.println("Operation: " + ops.get(clkCycle-4).instruction + " " + ops.get(clkCycle-4).operand1 + "," 
-							+ ops.get(clkCycle-4).operand2 + "\nState: " + ops.get(clkCycle-4).state);
-							System.out.println("Operation: " + ops.get(clkCycle-3).instruction + " " + ops.get(clkCycle-3).operand1 + "," 
-							+ ops.get(clkCycle-3).operand2 + "\nState: " + ops.get(clkCycle-3).state);
-							System.out.println("Operation: " + ops.get(clkCycle-2).instruction + " " + ops.get(clkCycle-2).operand1 + "," 
-							+ ops.get(clkCycle-2).operand2 + "\nState: " + ops.get(clkCycle-2).state);
-							System.out.println("Operation: " + ops.get(clkCycle-1).instruction + " " + ops.get(clkCycle-1).operand1 + "," 
-							+ ops.get(clkCycle-1).operand2 + "\nState: " + ops.get(clkCycle-1).state);
-							System.out.println("Operation: " + ops.get(clkCycle).instruction + " " + ops.get(clkCycle).operand1 + "," 
-							+ ops.get(clkCycle).operand2 + "\nState: " + ops.get(clkCycle).state);
 
-							//~EXECUTE the instruction with the execute state~
+							if((temp1+4)>last_addr){
+							
+								if((temp1+3)>last_addr){
+
+									if((temp1+2)>last_addr){
+										
+										if((temp1+1)>last_addr){
+
+											System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+											+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+
+											//~EXECUTE the instruction with the execute state~
+
+											System.out.println("Clock Cycle: " + clkCycle);
+											ops.get(temp1).state=DONE;
+											clkCycle++;
+											System.out.println();
+
+										}
+										else{
+
+											System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+											+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+											System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+											+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+
+											//~EXECUTE the instruction with the execute state~
+
+											System.out.println("Clock Cycle: " + clkCycle);
+											ops.get(temp1+1).state=WRITE_BACK;
+											ops.get(temp1).state=DONE;
+											clkCycle++;
+											System.out.println();
+
+										}
+
+									}
+									else{
+
+										System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+										+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+										System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+										+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+										System.out.println("Operation: " + ops.get(temp1+2).instruction + " " + ops.get(temp1+2).operand1 + "," 
+										+ ops.get(temp1+2).operand2 + "\nState: " + ops.get(temp1+2).state);
+
+										//~EXECUTE the instruction with the execute state~
+
+										System.out.println("Clock Cycle: " + clkCycle);
+										ops.get(temp1+2).state=MEM_ACCESS;
+										ops.get(temp1+1).state=WRITE_BACK;
+										ops.get(temp1).state=DONE;
+										clkCycle++;
+										System.out.println();
+
+									}
+
+								}
+								else{
+
+									System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+									+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+									System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+									+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+									System.out.println("Operation: " + ops.get(temp1+2).instruction + " " + ops.get(temp1+2).operand1 + "," 
+									+ ops.get(temp1+2).operand2 + "\nState: " + ops.get(temp1+2).state);
+									System.out.println("Operation: " + ops.get(temp1+3).instruction + " " + ops.get(temp1+3).operand1 + "," 
+									+ ops.get(temp1+3).operand2 + "\nState: " + ops.get(temp1+3).state);
+
+									//~EXECUTE the instruction with the execute state~
+
+									System.out.println("Clock Cycle: " + clkCycle);
+									ops.get(temp1+3).state=EXECUTE;
+									ops.get(temp1+2).state=MEM_ACCESS;
+									ops.get(temp1+1).state=WRITE_BACK;
+									ops.get(temp1).state=DONE;
+									clkCycle++;
+									System.out.println();
+
+								}
+
+							}
+							else{
+
+								System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+								+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
+								System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+								+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+								System.out.println("Operation: " + ops.get(temp1+2).instruction + " " + ops.get(temp1+2).operand1 + "," 
+								+ ops.get(temp1+2).operand2 + "\nState: " + ops.get(temp1+2).state);
+								System.out.println("Operation: " + ops.get(temp1+3).instruction + " " + ops.get(temp1+3).operand1 + "," 
+								+ ops.get(temp1+3).operand2 + "\nState: " + ops.get(temp1+3).state);
+								System.out.println("Operation: " + ops.get(temp1+4).instruction + " " + ops.get(temp1+4).operand1 + "," 
+								+ ops.get(temp1+4).operand2 + "\nState: " + ops.get(temp1+4).state);
+
+								//~EXECUTE the instruction with the execute state~
+
+								System.out.println("Clock Cycle: " + clkCycle);
+								ops.get(temp1+4).state=DECODE;
+								ops.get(temp1+3).state=EXECUTE;
+								ops.get(temp1+2).state=MEM_ACCESS;
+								ops.get(temp1+1).state=WRITE_BACK;
+								ops.get(temp1).state=DONE;
+								clkCycle++;
+								System.out.println();
+
+							}
+						}
+						/*
+						else if(ops.get(temp1).state==DECODE && ops.get(temp1-1).state==DONE){
+
+							System.out.println("Operation: " + ops.get(temp1+1).instruction + " " + ops.get(temp1+1).operand1 + "," 
+							+ ops.get(temp1+1).operand2 + "\nState: " + ops.get(temp1+1).state);
+							System.out.println("Operation: " + ops.get(temp1).instruction + " " + ops.get(temp1).operand1 + "," 
+							+ ops.get(temp1).operand2 + "\nState: " + ops.get(temp1).state);
 
 							System.out.println("Clock Cycle: " + clkCycle);
-							ops.get(clkCycle).state=DECODE;
-							ops.get(clkCycle-1).state=EXECUTE;
-							ops.get(clkCycle-2).state=MEM_ACCESS;
-							ops.get(clkCycle-3).state=WRITE_BACK;
-							ops.get(clkCycle-4).state=DONE;
+							ops.get(temp1+1).state=DECODE;
+							ops.get(temp1).state=EXECUTE;
 							clkCycle++;
 							System.out.println();
-						}
+						}*/	
 
 					}
 
